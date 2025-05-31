@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Manga List</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      font-family: 'Press Start 2P', cursive;
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    @media (max-width: 767px) {
+      body {
+        background-image: url('https://i.pinimg.com/736x/ee/9a/87/ee9a878e0c6b14af3e8b106abdd14bba.jpg');
+      }
+      #container {
+        max-width: 90%;
+      }
+    }
+    @media (min-width: 768px) {
+      body {
+        background-image: url('https://i.pinimg.com/736x/2b/e5/d3/2be5d30e327368fbd3525087a2d9f671.jpg');
+      }
+    }
+
+    #container {
+      width: 100%;
+      max-width: 640px;
+    }
+    .box {
+      background: rgba(183, 218, 255, 0.88);
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+      padding: 2rem;
+      margin: 1rem auto;
+      text-align: center;
+      color: #ffffff;
+      overflow-y: auto;
+      max-height: 90vh;
+    }
+
+    button {
+      cursor: pointer;
+      padding: 0.7rem 1.5rem;
+      font-size: 0.75rem;
+      border: none;
+      border-radius: 10px;
+      background-color: rgba(0, 123, 255, 0.52);
+      box-shadow: 0 2px 15px rgba(0, 123, 255, 0.52);
+      color: white;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: rgba(0, 123, 255, 0.28);
+    }
+
+    .anime-list, #mangaEntries {
+      list-style: none;
+      padding: 0;
+      margin-top: 1rem;
+      overflow-y: auto;
+      max-height: 300px;
+    }
+
+    .anime-list li, .manga-entry {
+      background: rgba(0, 123, 255, 0.38);
+      margin-bottom: 0.5rem;
+      border-radius: 8px;
+      padding: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .anime-name {
+      flex-grow: 1;
+      text-align: left;
+    }
+
+    .arrow {
+      margin-left: 0.5rem;
+    }
+
+    .delete-anime-btn {
+      background-color: rgba(0, 38, 79, 0.52);
+      font-size: 0.75rem;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      padding: 0;
+    }
+    .delete-anime-btn:hover {
+      background-color: rgb(0, 62, 129);
+    }
+
+    #addAnimeForm {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      justify-content: center;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #addAnimeForm input {
+      flex-grow: 1;
+      padding: 0.5rem;
+      border: 1px solid #ffffff;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      box-shadow: 0 2px 15px rgba(0, 123, 255, 0.52);
+    }
+
+    #addAnimeForm button {
+      background-color: rgb(61, 154, 255);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+    }
+    #addAnimeForm button:hover {
+      background-color: rgba(113, 182, 255, 0.88);
+    }
+
+    .manga-entry img {
+      width: 60px;
+      height: 80px;
+      object-fit: cover;
+      margin-right: 1rem;
+      border-radius: 6px;
+    }
+
+    .manga-info {
+      flex-grow: 1;
+      text-align: left;
+    }
+
+    .manga-price {
+      font-weight: bold;
+      font-size: 0.75rem;
+    }
+
+    .manga-checkbox {
+      width: 20px;
+      height: 20px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 123, 255, 0);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: rgb(124, 196, 255);
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      text-align: left;
+        box-shadow: 0 2px 15px rgb(0, 86, 178);
+    }
+
+    .modal-content label {
+      display: block;
+      margin-top: 1rem;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      font-size: 0.9rem;
+    }
+
+    .modal-content button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+    }
+
+    #addMangaToggleBtn {
+      margin: 1rem 0;
+      background-color: rgb(0, 183, 255);
+      box-shadow: 0 2px 15px rgb(26, 114, 210);
+    }
+
+    #backToBox2 {
+      background-color: #52a5ff;
+      box-shadow: 0 2px 15px rgb(26, 114, 210);
+    }
+
+    #totalPrice {
+      color: #0e4ea1;
+    }
+
+    h1, h2, h3 {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .anime-list::-webkit-scrollbar, #mangaEntries::-webkit-scrollbar {
+      width: 8px;
+    }
+    .anime-list::-webkit-scrollbar-thumb {
+      background-color: rgba(0, 123, 255, 0.52);
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background-clip: content-box;
+    }
+    #mangaEntries::-webkit-scrollbar-thumb {
+      background-color: #5984ff;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background-clip: content-box;
+    }
+
+    .manga-info.checked div:first-child {
+      color: #999;
+      text-decoration: line-through;
+    }
+
+    /* Checked volume text color pink */
+    .manga-info.checked div:first-child {
+      color: rgb(2, 91, 135) !important; /* pink */
+      text-decoration: none;
+      font-weight: bold;
+     text-shadow: 0 0 4px rgb(12, 97, 190)
+    }
+      
+      /* 🧾 Prettier & Compact My List Box */
+#box2 {
+  max-width: 3500px !important;
+  padding: 1.2rem 1rem !important;
+  background: rgba(173, 211, 255, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 💡 Anime List Item Styling */
+.anime-list li {
+  padding: 0.5rem 0.7rem !important;
+  font-size: 0.65rem !important;
+  background: rgba(0, 123, 255, 0.25);
+  border: 1px solid rgba(255, 71, 71, 0);
+  transition: background 0.2s ease;
+}
+
+.anime-list li:hover {
+  background: rgba(0, 123, 255, 0.4);
+}
+
+/* 🎯 Add Anime Form Compact */
+#addAnimeForm {
+  gap: 0.3rem;
+  margin-top: 0.8rem;
+}
+
+#addAnimeForm input {
+  font-size: 0.64rem !important;
+  padding: 0.2rem 0.7rem !important;
+  border-radius: 6px;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+#addAnimeForm button {
+  font-size: 0.63rem !important;
+  padding: 0.6rem 0.6rem !important;
+  border-radius: 6px;
+}
+
+/* 📚 Manga Entry Container Smaller */
+#box3 {
+  max-width: 320px !important;
+  padding: 1.2rem !important;
+}
+
+/* 📖 Manga Entry Styling */
+.manga-entry {
+  padding: 0.5rem !important;
+  font-size: 0.65rem !important;
+  background: rgba(0, 94, 189, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  margin-bottom: 0.6rem;
+}
+
+.manga-entry img {
+  width: 45px !important;
+  height: 60px !important;
+  border-radius: 5px;
+  margin-right: 0.6rem;
+}
+
+.manga-info div:first-child {
+  font-size: 0.65rem;
+}
+
+.manga-price {
+  font-size: 0.65rem !important;
+  color: #0062a0;
+  font-weight: 600;
+}
+
+.manga-checkbox {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* 🎀 Buttons Styling Enhancements */
+button {
+  border-radius: 6px !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+#addMangaToggleBtn, #backToBox2 {
+  font-size: 0.7rem;
+  padding: 0.5rem 0.8rem;
+}
+
+  </style>
+</head>
+<body>
+<div id="container">
+  <div id="box1" class="box">
+    <h1>My Manga List</h1>
+    <button id="openBox2Btn">Open</button>
+  </div>
+
+  <div id="box2" class="box" style="max-width: 400px; margin: 1rem auto;">
+    <h2>My List</h2>
+    <ul id="animeList" class="anime-list"></ul>
+    <form id="addAnimeForm">
+      <input type="text" id="newAnimeInput" placeholder="Add new anime" required />
+      <button type="submit">Add Anime</button>
+    </form>
+  </div>
+
+  <div id="box3" class="box">
+    <h2><span id="animeTitle">Anime Title</span> <span>Total: <span id="totalPrice">$0.00</span></span></h2>
+    <div id="mangaEntries"></div>
+    <button id="addMangaToggleBtn" title="Add manga volume">➕ Add Volume</button>
+
+    <div id="addMangaModal" class="modal">
+      <div class="modal-content">
+        <h3>Add Manga Volume</h3>
+        <form id="addMangaForm">
+          <label>Image: <input type="file" id="mangaPicInput" accept="image/*" required /></label>
+          <label>Volume Name: <input type="text" id="mangaVolName" required /></label>
+          <label>Price: <input type="number" id="mangaPrice" step="0.01" min="0" required /></label>
+          <div style="margin-top: 1rem; text-align: right;">
+            <button type="submit">Add</button>
+            <button type="button" id="cancelAddMangaBtn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <button id="backToBox2">Back to List</button>
+  </div>
+</div>
+
+<script>
+  const openBox2Btn = document.getElementById('openBox2Btn');
+  const box1 = document.getElementById('box1');
+  const box2 = document.getElementById('box2');
+  const box3 = document.getElementById('box3');
+
+  // Initially only box1 visible
+  box1.style.display = 'block';
+  box2.style.display = 'none';
+  box3.style.display = 'none';
+
+  openBox2Btn.addEventListener('click', () => {
+    box1.style.display = 'none';
+    box2.style.display = 'block';
+  });
+
+  const animeListUl = document.getElementById('animeList');
+  const addAnimeForm = document.getElementById('addAnimeForm');
+  const newAnimeInput = document.getElementById('newAnimeInput');
+  const animeTitleSpan = document.getElementById('animeTitle');
+  const mangaEntriesDiv = document.getElementById('mangaEntries');
+  const addMangaToggleBtn = document.getElementById('addMangaToggleBtn');
+  const addMangaModal = document.getElementById('addMangaModal');
+  const addMangaForm = document.getElementById('addMangaForm');
+  const mangaPicInput = document.getElementById('mangaPicInput');
+  const mangaVolName = document.getElementById('mangaVolName');
+  const mangaPrice = document.getElementById('mangaPrice');
+  const cancelAddMangaBtn = document.getElementById('cancelAddMangaBtn');
+  const backToBox2Btn = document.getElementById('backToBox2');
+  const totalPriceSpan = document.getElementById('totalPrice');
+
+  let mangaData = JSON.parse(localStorage.getItem('mangaData') || '{}');
+  let currentAnime = null;
+
+  function saveData() {
+    localStorage.setItem('mangaData', JSON.stringify(mangaData));
+  }
+
+  function renderAnimeList() {
+    animeListUl.innerHTML = '';
+    Object.keys(mangaData).forEach(animeName => {
+      const li = document.createElement('li');
+
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = animeName;
+      nameSpan.className = 'anime-name';
+      nameSpan.style.cursor = 'pointer';
+
+      // Arrow icon
+      const arrowSpan = document.createElement('span');
+      arrowSpan.className = 'arrow';
+      arrowSpan.textContent = '➡';
+
+      // Delete button
+      const delBtn = document.createElement('button');
+      delBtn.className = 'delete-anime-btn';
+      delBtn.textContent = 'X';
+      delBtn.title = 'Delete anime';
+
+      delBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (confirm(`Delete anime "${animeName}" and all its volumes?`)) {
+          delete mangaData[animeName];
+          saveData();
+          renderAnimeList();
+          if (currentAnime === animeName) {
+            currentAnime = null;
+            box3.style.display = 'none';
+            box2.style.display = 'block';
+          }
+        }
+      });
+
+      li.appendChild(nameSpan);
+      li.appendChild(arrowSpan);
+      li.appendChild(delBtn);
+
+      li.addEventListener('click', () => {
+        currentAnime = animeName;
+        animeTitleSpan.textContent = animeName;
+        renderMangaEntries();
+        box2.style.display = 'none';
+        box3.style.display = 'block';
+      });
+
+      animeListUl.appendChild(li);
+    });
+  }
+
+  addAnimeForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const animeName = newAnimeInput.value.trim();
+    if (animeName === '') return;
+    if (mangaData[animeName]) {
+      alert('Anime already exists!');
+      return;
+    }
+    mangaData[animeName] = [];
+    saveData();
+    renderAnimeList();
+    newAnimeInput.value = '';
+  });
+
+  function renderMangaEntries() {
+    mangaEntriesDiv.innerHTML = '';
+    if (!currentAnime) return;
+
+    let total = 0;
+    mangaData[currentAnime].forEach((entry, idx) => {
+      const entryDiv = document.createElement('div');
+      entryDiv.className = 'manga-entry';
+      entryDiv.style.display = 'flex';
+      entryDiv.style.alignItems = 'center';
+
+      const img = document.createElement('img');
+      img.src = entry.pic;
+      img.alt = entry.nameVol;
+      entryDiv.appendChild(img);
+
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'manga-info';
+
+      const nameVolSpan = document.createElement('div');
+      nameVolSpan.textContent = entry.nameVol;
+      infoDiv.appendChild(nameVolSpan);
+
+      const priceSpan = document.createElement('div');
+      priceSpan.className = 'manga-price';
+      priceSpan.textContent = `$${parseFloat(entry.price).toFixed(2)}`;
+      infoDiv.appendChild(priceSpan);
+
+      entryDiv.appendChild(infoDiv);
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'manga-checkbox';
+      checkbox.checked = !!entry.checked;
+      checkbox.title = 'Mark to remove price from total';
+
+      if (entry.checked) {
+        infoDiv.classList.add('checked');
+      }
+
+      checkbox.addEventListener('change', () => {
+        mangaData[currentAnime][idx].checked = checkbox.checked;
+        saveData();
+        if (checkbox.checked) {
+          infoDiv.classList.add('checked');
+        } else {
+          infoDiv.classList.remove('checked');
+        }
+        updateTotalPrice();
+      });
+
+      entryDiv.appendChild(checkbox);
+
+      mangaEntriesDiv.appendChild(entryDiv);
+
+      if (!entry.checked) total += parseFloat(entry.price);
+    });
+    totalPriceSpan.textContent = `$${total.toFixed(2)}`;
+  }
+
+  function updateTotalPrice() {
+    if (!currentAnime) return;
+    let total = 0;
+    mangaData[currentAnime].forEach(entry => {
+      if (!entry.checked) total += parseFloat(entry.price);
+    });
+    totalPriceSpan.textContent = `$${total.toFixed(2)}`;
+  }
+
+  addMangaToggleBtn.addEventListener('click', () => {
+    addMangaModal.style.display = 'flex';
+  });
+
+  cancelAddMangaBtn.addEventListener('click', () => {
+    addMangaModal.style.display = 'none';
+    addMangaForm.reset();
+  });
+
+  addMangaForm.addEventListener('submit', e => {
+    e.preventDefault();
+
+    if (!currentAnime) return;
+
+    const file = mangaPicInput.files[0];
+    if (!file) {
+      alert('Please select an image file.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const picDataUrl = ev.target.result;
+      const newEntry = {
+        pic: picDataUrl,
+        nameVol: mangaVolName.value.trim(),
+        price: parseFloat(mangaPrice.value).toFixed(2),
+        checked: false
+      };
+      mangaData[currentAnime].push(newEntry);
+      saveData();
+      renderMangaEntries();
+      updateTotalPrice();
+      addMangaModal.style.display = 'none';
+      addMangaForm.reset();
+    }
+    reader.readAsDataURL(file);
+  });
+
+  backToBox2Btn.addEventListener('click', () => {
+    box3.style.display = 'none';
+    box2.style.display = 'block';
+  });
+
+  // Initial render
+  renderAnimeList();
+</script>
+</body>
+</html>
